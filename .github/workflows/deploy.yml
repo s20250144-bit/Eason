@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Croc Jump site to GitHub Pages
 
 on:
   push:
@@ -12,29 +12,34 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Prepare site
+      - name: Prepare static site
         run: |
           mkdir -p _site
-          cp index.html preview.jpg .nojekyll _site/
+          cp index.html game.html site.css site.js preview.jpg .nojekyll _site/
+          cp -R assets _site/assets
+          test -f _site/game.html
+          test -f _site/site.css
+          test -f _site/site.js
+          test -f _site/assets/hero.jpg
 
-      - name: Upload site
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
